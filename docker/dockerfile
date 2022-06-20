@@ -1,9 +1,18 @@
+FROM louislam/uptime-kuma:base-debian AS prebuild
+WORKDIR /app
+
+COPY . .
+RUN npm ci && \
+    npm run build
+
 FROM louislam/uptime-kuma:base-debian AS build
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
 COPY . .
+COPY --from=prebuild /app/dist /app/dist
+
 RUN npm ci --production && \
     chmod +x /app/extra/entrypoint.sh
 
